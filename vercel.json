@@ -1,6 +1,7 @@
 {
   "rewrites": [
-    { "source": "/mis-gastos-descargas", "destination": "/" },
-    { "source": "/mis-gastos-descargas/:ruta*", "destination": "/:ruta*" }
+    { "source": "/mis-gastos-descargas", "destination": "/index.html" },
+    { "source": "/mis-gastos-descargas/", "destination": "/index.html" },
+    { "source": "/mis-gastos-descargas/:ruta+", "destination": "/:ruta+" }
   ]
 }

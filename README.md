@@ -2,6 +2,8 @@
 
 Lleva tus ingresos y gastos mes a mes, sin hojas de cálculo y sin crear cuentas. Anotas lo que entra y lo que sale, y la app te dice cuánto te queda, en qué se te va la plata y qué pagos vienen.
 
+**Página de la app: [s3b4sst14n.github.io/mis-gastos-descargas](https://s3b4sst14n.github.io/mis-gastos-descargas/)**
+
 ![Mis gastos: el resumen del mes, con lo que entró, los gastos fijos y los otros gastos](capturas/inicio.webp)
 
 ## Descargar

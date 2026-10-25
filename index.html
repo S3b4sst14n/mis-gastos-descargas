@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mis gastos · Tu plata, mes a mes</title>
+<meta name="description" content="Anota lo que entra y lo que sale, y Mis gastos te dice cuánto te queda, en qué se te va la plata y qué pagos vienen. App para Windows, sin cuentas: todo se queda en tu computador.">
+<meta name="theme-color" content="#EAF0ED" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E171A" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="icono.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Mis gastos · Tu plata, mes a mes">
+<meta property="og:description" content="Anota lo que entra y lo que sale. Mis gastos te dice cuánto te queda, en qué se te va la plata y qué pagos vienen.">
+<meta property="og:image" content="https://s3b4sst14n.github.io/mis-gastos-descargas/compartir.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="fuentes/bricolage.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fuentes/plex-400.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:200 800;font-display:swap;src:url(fuentes/bricolage.woff2) format("woff2")}
+@font-face{font-family:"IBM Plex Sans";font-style:normal;font-weight:400;font-display:swap;src:url(fuentes/plex-400.woff2) format("woff2")}
+@font-face{font-family:"IBM Plex Sans";font-style:normal;font-weight:500;font-display:swap;src:url(fuentes/plex-500.woff2) format("woff2")}
+@font-face{font-family:"IBM Plex Sans";font-style:normal;font-weight:600;font-display:swap;src:url(fuentes/plex-600.woff2) format("woff2")}
+
+/* The app's own colors (src/styles.css). */
+:root{
+  --bg:#EAF0ED; --surface:#FBFDFC; --surface-2:#E4ECE8; --surface-3:#D6E1DB; --ink:#14232A; --muted:#58686D; --line:#D3DED8;
+  --ing:#1E7A57; --fij:#3B4FA6; --otr:#B97E08; --neg:#C2352B; --focus:#3B4FA6;
+  --cta:#14232A; --cta-ink:#FBFDFC;
+  --glow-1:rgb(30 122 87 / .16); --glow-2:rgb(59 79 166 / .13);
+  --shadow:0 1px 2px rgb(20 35 42 / .05), 0 12px 32px -16px rgb(20 35 42 / .25);
+  --shadow-lg:0 40px 90px -30px rgb(20 35 42 / .45), 0 2px 6px rgb(20 35 42 / .06);
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0E171A; --surface:#152227; --surface-2:#1C2D33; --surface-3:#263A41; --ink:#E6EFEB; --muted:#93A6A4; --line:#25383F;
+    --ing:#36A276; --fij:#7B8CE6; --otr:#BC8320; --neg:#F07368; --focus:#7B8CE6;
+    --cta:#E6EFEB; --cta-ink:#0E171A;
+    --glow-1:rgb(54 162 118 / .16); --glow-2:rgb(123 140 230 / .13);
+    --shadow:0 1px 2px rgb(0 0 0 / .3), 0 14px 34px -16px rgb(0 0 0 / .6);
+    --shadow-lg:0 40px 90px -30px rgb(0 0 0 / .8), 0 2px 6px rgb(0 0 0 / .3);
+    color-scheme:dark;
+  }
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.6 var(--body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{display:block;max-width:100%;height:auto}
+a{color:inherit}
+h1,h2,h3{font-family:var(--display);line-height:1.08;letter-spacing:-.02em;margin:0;text-wrap:balance}
+p{margin:0}
+:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:6px}
+.wrap{width:min(1160px,100% - 32px);margin-inline:auto}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* ---------- header ---------- */
+.top{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);
+  background:color-mix(in srgb,var(--bg) 78%,transparent);border-bottom:1px solid transparent;transition:border-color .3s}
+.top.scrolled{border-bottom-color:var(--line)}
+.top-in{display:flex;align-items:center;gap:20px;height:68px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:700 21px var(--display);letter-spacing:-.02em}
+.brand img{width:32px;height:32px}
+.nav{display:flex;gap:4px;margin-left:auto}
+.nav a{padding:8px 12px;border-radius:10px;text-decoration:none;color:var(--muted);font-weight:500;font-size:15px;transition:color .2s,background .2s}
+.nav a:hover{color:var(--ink);background:var(--surface-2)}
+@media (max-width:820px){.nav{display:none}.top .btn{margin-left:auto}}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 20px;border-radius:14px;border:1px solid transparent;
+  font:600 16px var(--body);text-decoration:none;cursor:pointer;white-space:nowrap;
+  transition:transform .5s var(--ease-out),box-shadow .5s var(--ease-out),background .2s}
+.btn.primary{background:var(--cta);color:var(--cta-ink);box-shadow:0 10px 24px -12px rgb(20 35 42 / .6)}
+.btn.primary:hover{transform:translateY(-2px);box-shadow:0 18px 34px -14px rgb(20 35 42 / .6)}
+.btn.primary:active{transform:none;transition-duration:.1s}
+.btn.ghost{border-color:var(--line);background:var(--surface)}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.sm{padding:9px 14px;font-size:14.5px;border-radius:12px}
+.btn.big{padding:16px 26px;font-size:17px;border-radius:16px}
+.btn .ic{width:19px;height:19px}
+
+/* ---------- hero ---------- */
+.hero{position:relative;padding:72px 0 0;text-align:center}
+.hero::before{content:"";position:absolute;inset:-68px 0 auto;height:720px;z-index:-1;pointer-events:none;
+  background:radial-gradient(60% 55% at 20% 20%,var(--glow-1),transparent 70%),radial-gradient(50% 50% at 85% 10%,var(--glow-2),transparent 70%)}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--line);
+  font-size:13.5px;font-weight:600;color:var(--muted)}
+.eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--ing);box-shadow:0 0 0 4px color-mix(in srgb,var(--ing) 20%,transparent)}
+.hero h1{font-size:clamp(44px,7.4vw,86px);font-weight:800;margin:22px auto 0;max-width:13ch}
+.hero h1 em{font-style:normal;white-space:nowrap;background:linear-gradient(100deg,var(--ing),var(--fij) 55%,var(--otr));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:clamp(17px,2vw,20px);color:var(--muted);max-width:40em;margin:22px auto 0}
+.ctas{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:34px}
+.ctas-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.meta{font-size:14px;color:var(--muted)}
+
+/* A Windows window around the screenshots. */
+.ventana{border-radius:14px;overflow:hidden;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-lg)}
+.ventana-barra{display:flex;align-items:center;gap:8px;height:34px;padding-left:12px;font-size:12.5px;color:var(--muted);background:var(--surface);border-bottom:1px solid var(--line)}
+.ventana-barra img{width:16px;height:16px}
+.ventana-barra span:last-child{margin-left:auto;display:flex}
+.ventana-barra svg{width:46px;height:34px;padding:12px 17px;stroke:var(--muted);stroke-width:1.2;fill:none}
+.hero-shot{margin:56px auto 0;max-width:1080px;position:relative}
+.hero-shot::after{content:"";position:absolute;left:8%;right:8%;bottom:-40px;height:80px;z-index:-1;background:var(--glow-2);filter:blur(40px)}
+
+/* ---------- three promises ---------- */
+.pilares{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:88px}
+.pilar{padding:22px;border-radius:20px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.pilar h3{font-size:19px;margin-top:14px}
+.pilar p{color:var(--muted);font-size:15.5px;margin-top:6px}
+.tile{width:44px;height:44px;display:grid;place-items:center;border-radius:13px;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+.tile .ic{width:22px;height:22px}
+@media (max-width:760px){.pilares{grid-template-columns:1fr}}
+
+/* ---------- features ---------- */
+.seccion{padding:120px 0 0}
+.titulo{text-align:center;max-width:720px;margin:0 auto}
+.titulo h2{font-size:clamp(34px,4.6vw,54px);font-weight:800}
+.titulo p{color:var(--muted);font-size:18px;margin-top:14px}
+.func{display:grid;grid-template-columns:1fr 1.15fr;gap:64px;align-items:center;margin-top:96px}
+.func.al-reves>.func-txt{order:2}
+.etiqueta{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--c)}
+.etiqueta .ic{width:17px;height:17px}
+.func h3{font-size:clamp(28px,3.4vw,40px);font-weight:750;margin-top:12px}
+.func-txt>p{color:var(--muted);margin-top:14px;font-size:17.5px}
+.lista{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:12px}
+.lista li{display:flex;gap:12px;align-items:flex-start;font-size:16px}
+.lista li .ic{width:22px;height:22px;padding:4px;border-radius:7px;margin-top:1px;stroke-width:2.6;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+.func-img{position:relative;display:flex;justify-content:center}
+.func-img::before{content:"";position:absolute;inset:6% 4%;border-radius:40px;z-index:-1;background:color-mix(in srgb,var(--c) 18%,transparent);filter:blur(50px)}
+/* A window of the app, cropped out (its corners were round in the app too). */
+.recorte{width:min(100%,480px);border-radius:26px;box-shadow:var(--shadow-lg);
+  -webkit-mask-image:linear-gradient(#000 82%,transparent);mask-image:linear-gradient(#000 82%,transparent)}
+.panel{border-radius:18px;box-shadow:var(--shadow-lg);border:1px solid var(--line)}
+.panel.angosta{width:min(100%,400px);border-radius:24px}
+@media (max-width:900px){
+  .func{grid-template-columns:1fr;gap:36px;margin-top:80px}
+  .func.al-reves>.func-txt{order:0}
+}
+
+/* ---------- day and night ---------- */
+.noche{margin-top:120px;padding:96px 0;background:#0E171A;color:#E6EFEB;position:relative;overflow:hidden}
+.noche::before{content:"";position:absolute;inset:0;background:radial-gradient(50% 60% at 15% 30%,rgb(54 162 118 / .18),transparent 70%),radial-gradient(45% 55% at 90% 80%,rgb(123 140 230 / .16),transparent 70%)}
+.noche .wrap{position:relative;display:grid;grid-template-columns:1fr auto;gap:56px;align-items:center}
+.noche h2{font-size:clamp(34px,4.6vw,54px);font-weight:800}
+.noche p{color:#93A6A4;font-size:18px;margin-top:14px;max-width:30em}
+.telefonos{display:flex;gap:18px;align-items:flex-start}
+.telefonos img{width:220px;border-radius:26px;border:1px solid #25383F;box-shadow:0 40px 80px -30px rgb(0 0 0 / .9)}
+.telefonos img:last-child{margin-top:48px}
+.noche .grande{grid-column:1/-1;margin-top:8px}
+.noche .ventana{border-color:#25383F;background:#152227}
+.noche .ventana-barra{background:#152227;border-color:#25383F;color:#93A6A4}
+.noche .ventana-barra svg{stroke:#93A6A4}
+@media (max-width:900px){
+  .noche .wrap{grid-template-columns:1fr}
+  .telefonos{justify-content:center}
+  .telefonos img{width:min(44vw,220px)}
+}
+
+/* ---------- data, install, faq ---------- */
+.tarjetas{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+.tarjeta{padding:26px;border-radius:20px;background:var(--surface);border:1px solid var(--line)}
+.tarjeta h3{font-size:20px;margin-top:16px}
+.tarjeta p{color:var(--muted);font-size:15.5px;margin-top:8px}
+.tarjeta code,.paso code{font:500 13.5px ui-monospace,"Cascadia Mono",Consolas,monospace;padding:2px 6px;border-radius:6px;background:var(--surface-2);color:var(--ink);white-space:nowrap}
+@media (max-width:860px){.tarjetas{grid-template-columns:1fr}}
+.pasos{list-style:none;padding:0;margin:48px auto 0;max-width:760px;display:grid;gap:14px;counter-reset:paso}
+.paso{display:grid;grid-template-columns:auto 1fr;gap:18px;padding:22px 24px;border-radius:20px;background:var(--surface);border:1px solid var(--line);counter-increment:paso}
+.paso::before{content:counter(paso);width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:var(--cta);color:var(--cta-ink);font:800 19px var(--display)}
+.paso h3{font-size:19px;margin-top:8px}
+.paso p{color:var(--muted);font-size:15.5px;margin-top:6px}
+.paso b{color:var(--ink)}
+.preguntas{max-width:760px;margin:48px auto 0;display:grid;gap:10px}
+.preguntas details{border-radius:16px;background:var(--surface);border:1px solid var(--line);transition:background .2s}
+.preguntas summary{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;cursor:pointer;list-style:none;font-weight:600;font-size:16.5px}
+.preguntas summary::-webkit-details-marker{display:none}
+.preguntas summary .ic{color:var(--muted);transition:transform .4s var(--ease-out)}
+.preguntas details[open] summary .ic{transform:rotate(180deg)}
+.preguntas details p{padding:0 22px 20px;color:var(--muted);font-size:15.5px}
+
+/* ---------- last call ---------- */
+.final{margin:120px auto 0;padding:64px 24px;border-radius:32px;text-align:center;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);position:relative;overflow:hidden}
+.final::before{content:"";position:absolute;inset:0;z-index:0;background:radial-gradient(40% 70% at 50% 0%,var(--glow-1),transparent 70%)}
+.final>*{position:relative}
+.final img{width:72px;height:72px;margin:0 auto}
+.final h2{font-size:clamp(32px,4.4vw,48px);font-weight:800;margin-top:22px}
+.final p{color:var(--muted);font-size:18px;margin:12px auto 0;max-width:32em}
+.final .ctas{margin-top:28px}
+footer{padding:56px 0 48px;color:var(--muted);font-size:14px}
+footer .wrap{display:flex;gap:16px 28px;flex-wrap:wrap;justify-content:space-between}
+footer a{color:var(--muted)}
+
+/* ---------- appearing on scroll (only with JavaScript and motion allowed) ---------- */
+@media (prefers-reduced-motion: no-preference){
+  .js .rv{opacity:0;transform:translateY(28px);filter:blur(6px);transition:opacity 1s var(--ease-out),transform 1.2s var(--ease-out),filter 1s var(--ease-out);transition-delay:var(--d,0s)}
+  .js .rv.in{opacity:1;transform:none;filter:none}
+  .hero .rv{transition-duration:1.2s,1.5s,1.2s}
+}
+</style>
+<script>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+
+<header class="top" id="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#"><img src="icono.svg" alt="" width="32" height="32">Mis gastos</a>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#funciones">Qué hace</a>
+      <a href="#datos">Tus datos</a>
+      <a href="#instalar">Instalar</a>
+      <a href="#preguntas">Preguntas</a>
+    </nav>
+    <a class="btn primary sm" data-descarga href="https://github.com/S3b4sst14n/mis-gastos-descargas/releases/latest">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>Descargar
+    </a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow rv"><i></i>App para Windows</span>
+      <h1 class="rv" style="--d:.08s">Tu plata, <em>mes a mes</em>, sin enredos.</h1>
+      <p class="lead rv" style="--d:.16s">Anota lo que entra y lo que sale. Mis gastos te dice cuánto te queda, en qué se te va la plata y qué pagos vienen. Sin cuentas ni hojas de cálculo: todo se queda en tu computador.</p>
+      <div class="ctas rv" style="--d:.24s">
+        <div class="ctas-row">
+          <a class="btn primary big" data-descarga href="https://github.com/S3b4sst14n/mis-gastos-descargas/releases/latest">
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>Descargar para Windows
+          </a>
+          <a class="btn ghost big" href="#funciones">Ver qué hace</a>
+        </div>
+        <span class="meta" data-version>Windows 10 y 11 · unos 3 MB</span>
+      </div>
+      <div class="hero-shot rv" style="--d:.34s">
+        <div class="ventana">
+          <div class="ventana-barra" aria-hidden="true"><img src="icono.svg" alt=""><span>Mis gastos</span><span><svg viewBox="0 0 12 12"><path d="M1 6h10"/></svg><svg viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9"/></svg><svg viewBox="0 0 12 12"><path d="m1.5 1.5 9 9m0-9-9 9"/></svg></span></div>
+          <picture>
+            <source srcset="capturas/inicio-oscuro.webp" media="(prefers-color-scheme: dark)">
+            <img src="capturas/inicio.webp" width="2560" height="1720" alt="Mis gastos mostrando octubre: entraron 4.300.000 pesos, los gastos fijos y otros gastos, y cuánto queda; debajo, las listas de ingresos, gastos fijos y otros gastos" fetchpriority="high">
+          </picture>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="pilares">
+      <div class="pilar rv" style="--c:var(--ing)">
+        <span class="tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6Z"/><path d="m9 12 2 2 4-4"/></svg></span>
+        <h3>Sin cuentas</h3>
+        <p>No te registras en nada. Lo que anotas se guarda en tu computador y no se envía a ningún lado.</p>
+      </div>
+      <div class="pilar rv" style="--c:var(--fij);--d:.08s">
+        <span class="tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg></span>
+        <h3>Respaldo cada día</h3>
+        <p>La app guarda sola una copia en tus Documentos. Si cambias de computador, te ofrece cargarla.</p>
+      </div>
+      <div class="pilar rv" style="--c:var(--otr);--d:.16s">
+        <span class="tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></span>
+        <h3>Se actualiza sola</h3>
+        <p>Cuando sale una versión nueva, la instala en un momento, sin que pierdas nada de lo que anotaste.</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="seccion" id="funciones">
+    <div class="wrap">
+      <div class="titulo rv">
+        <h2>Todo lo que necesitas para llevar tus cuentas</h2>
+        <p>Pensada para usarla un par de minutos al día, no para aprender a usarla.</p>
+      </div>
+
+      <div class="func" style="--c:var(--ing)">
+        <div class="func-txt rv">
+          <span class="etiqueta"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Agregar</span>
+          <h3>Anotar un gasto toma segundos</h3>
+          <p>Escribe el monto y en qué fue. La app se encarga del resto.</p>
+          <ul class="lista">
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>La categoría sale sola del concepto: "Almuerzo" queda en Comida, "Arriendo" en Vivienda.</li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>Los conceptos que más usas aparecen abajo, con su último monto, para agregarlos con un toque.</li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>Un mes nuevo te ofrece traer los gastos fijos e ingresos del anterior.</li>
+          </ul>
+        </div>
+        <div class="func-img rv" style="--d:.1s"><img class="recorte" src="capturas/agregar-ventana.webp" width="1040" height="1440" loading="lazy" alt="La ventana para agregar: un gasto fijo de 89.900 pesos, Curso de inglés, que se repite cada mes 12 veces"></div>
+      </div>
+
+      <div class="func al-reves" style="--c:var(--fij)">
+        <div class="func-txt rv">
+          <span class="etiqueta"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Programados</span>
+          <h3>Lo que se repite, se anota solo</h3>
+          <p>El arriendo, el salario de cada quincena, Netflix, la cuota de la tarjeta: los anotas una vez y la app crea los del resto del año.</p>
+          <ul class="lista">
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>Cada semana, quincena, mes, 2, 3 o 6 meses, o cada año; hasta una fecha, un número de veces o sin fin.</li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>El botón Programados te dice cuántos vencen esta semana, y se pone en rojo si alguno ya se venció.</li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>Marcas cada uno como pagado o recibido con un toque.</li>
+          </ul>
+        </div>
+        <div class="func-img rv" style="--d:.1s"><img class="recorte" src="capturas/programados-ventana.webp" width="1200" height="1440" loading="lazy" alt="Pagos y cobros programados: el plan celular vencido, el internet y el salario de esta semana, y los de los próximos 30 días"></div>
+      </div>
+
+      <div class="func" style="--c:var(--otr)">
+        <div class="func-txt rv">
+          <span class="etiqueta"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9v9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/></svg>Categorías</span>
+          <h3>Mira en qué se te va la plata</h3>
+          <p>Cuánto se fue en comida, transporte, salidas o servicios este mes, y cuál fue la semana en que más gastaste.</p>
+          <ul class="lista">
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>Ponle un límite al mes a cada categoría y mira cuánto te queda.</li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>Si te pasas, la app te avisa.</li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>Toca una categoría para ver todos sus movimientos, de todos los meses.</li>
+          </ul>
+        </div>
+        <div class="func-img rv" style="--d:.1s"><img class="recorte" src="capturas/categorias-ventana.webp" width="1200" height="1440" loading="lazy" alt="Gastos por categoría de octubre: Vivienda, Ahorro, Comida con su límite, Deudas, Servicios y Salidas"></div>
+      </div>
+
+      <div class="func al-reves" style="--c:var(--ing)">
+        <div class="func-txt rv">
+          <span class="etiqueta"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>Metas de ahorro</span>
+          <h3>Ahorra con la meta a la vista</h3>
+          <p>Un viaje, un fondo de emergencia, lo que sea. Cada abono cuenta como un gasto del mes, y la meta te dice cuánto llevas y, al ritmo que vas, en cuántos meses la logras.</p>
+        </div>
+        <div class="func-img rv" style="--d:.1s"><img class="panel angosta" src="capturas/metas-angosta.webp" width="716" height="864" loading="lazy" alt="Dos metas: Viaje a Cartagena al 69% y Fondo de emergencia al 47%"></div>
+      </div>
+
+      <div class="func" style="--c:var(--fij)">
+        <div class="func-txt rv">
+          <span class="etiqueta"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>Mes a mes</span>
+          <h3>Compara un mes con otro</h3>
+          <p>Una gráfica con lo que entró, lo que gastaste y lo que te quedó cada mes, cuánto gastas en promedio y tus gastos más grandes sumando todos los meses.</p>
+        </div>
+        <div class="func-img rv" style="--d:.1s"><img class="panel" src="capturas/tendencias.webp" width="2208" height="1026" loading="lazy" alt="Gráfica de julio a octubre con lo que entró, los gastos y lo que quedó; al lado, los gastos más grandes: arriendo, tarjeta de crédito y ahorro"></div>
+      </div>
+
+      <div class="func al-reves" style="--c:var(--ing)">
+        <div class="func-txt rv">
+          <span class="etiqueta"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg>Reporte de Excel</span>
+          <h3>Un Excel listo para revisar o imprimir</h3>
+          <p>Con un clic sale un archivo de Excel con todo ordenado, no una tabla plana.</p>
+          <ul class="lista">
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>Un resumen con los totales y una tabla mes a mes.</li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>Todos los movimientos con filtros, el gasto por categoría y tus metas.</li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>Los totales son fórmulas: si cambias un número, se recalculan.</li>
+          </ul>
+        </div>
+        <div class="func-img rv" style="--d:.1s"><img class="panel" src="capturas/reporte-excel.png" width="890" height="365" loading="lazy" alt="La hoja de resumen del reporte de Excel: lo que entró, lo gastado y lo que quedó, y una tabla de julio a octubre"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="noche">
+    <div class="wrap">
+      <div class="rv">
+        <h2>De día o de noche</h2>
+        <p>La app sigue el tema claro u oscuro de Windows, o lo eliges tú. Y se acomoda si la pones en una ventana angosta al lado de otra cosa.</p>
+      </div>
+      <div class="telefonos rv" style="--d:.1s">
+        <img src="capturas/celular-claro.webp" width="780" height="1688" loading="lazy" alt="La app en una ventana angosta, en tema claro">
+        <img src="capturas/celular-oscuro.webp" width="780" height="1688" loading="lazy" alt="La app en una ventana angosta, en tema oscuro">
+      </div>
+      <div class="grande rv">
+        <div class="ventana">
+          <div class="ventana-barra" aria-hidden="true"><img src="icono.svg" alt=""><span>Mis gastos</span><span><svg viewBox="0 0 12 12"><path d="M1 6h10"/></svg><svg viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9"/></svg><svg viewBox="0 0 12 12"><path d="m1.5 1.5 9 9m0-9-9 9"/></svg></span></div>
+          <img src="capturas/inicio-oscuro.webp" width="2560" height="1720" loading="lazy" alt="Mis gastos en tema oscuro">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion" id="datos">
+    <div class="wrap">
+      <div class="titulo rv">
+        <h2>Tus datos son tuyos</h2>
+        <p>No hay cuentas, servidores ni publicidad. La app solo usa internet para revisar si hay una versión nueva.</p>
+      </div>
+      <div class="tarjetas">
+        <div class="tarjeta rv" style="--c:var(--ing)">
+          <span class="tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6Z"/><path d="m9 12 2 2 4-4"/></svg></span>
+          <h3>Se quedan en tu computador</h3>
+          <p>Lo que anotas no sale de tu computador. Nadie más lo ve.</p>
+        </div>
+        <div class="tarjeta rv" style="--c:var(--fij);--d:.08s">
+          <span class="tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg></span>
+          <h3>Copia de cada día</h3>
+          <p>Cada día que la usas se guarda una copia en <code>Documentos\Mis gastos\Respaldos</code>; se guardan las de los últimos 30 días.</p>
+        </div>
+        <div class="tarjeta rv" style="--c:var(--otr);--d:.16s">
+          <span class="tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg></span>
+          <h3>Llévalos a otro computador</h3>
+          <p>Guarda un respaldo en un archivo y ábrelo en el otro computador, desde el menú de la app.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion" id="instalar">
+    <div class="wrap">
+      <div class="titulo rv">
+        <h2>Instalarla toma un minuto</h2>
+        <p>Funciona en Windows 10 y Windows 11.</p>
+      </div>
+      <ol class="pasos">
+        <li class="paso rv"><div><h3>Descárgala</h3><p>Toca <b>Descargar para Windows</b>. Se baja un archivo de unos 3 MB.</p></div></li>
+        <li class="paso rv"><div><h3>Ábrela</h3><p>Abre el archivo. Si Windows muestra <b>"Windows protegió tu PC"</b>, toca <b>Más información</b> y luego <b>Ejecutar de todas formas</b>: ese aviso sale con los programas que todavía no descarga mucha gente.</p></div></li>
+        <li class="paso rv"><div><h3>Empieza a anotar</h3><p>Al terminar, la encuentras en el menú Inicio como <b>Mis gastos</b>. Abre vacía, lista para lo tuyo.</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="seccion" id="preguntas">
+    <div class="wrap">
+      <div class="titulo rv"><h2>Preguntas frecuentes</h2></div>
+      <div class="preguntas">
+        <details class="rv">
+          <summary>¿Pierdo mis datos al actualizar?<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <p>No. Las actualizaciones cambian la app, no lo que anotaste. Además, la app solo instala versiones firmadas por su autor.</p>
+        </details>
+        <details class="rv">
+          <summary>¿Necesito internet?<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <p>Para usarla, no. Solo para descargarla y para que se actualice; sin internet sigue funcionando y se actualiza la próxima vez que haya conexión.</p>
+        </details>
+        <details class="rv">
+          <summary>¿Cómo la desinstalo?<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <p>Desde Configuración → Aplicaciones, como cualquier programa. Los respaldos de Documentos\Mis gastos\Respaldos no se borran: si la vuelves a instalar, te ofrece cargarlos.</p>
+        </details>
+        <details class="rv">
+          <summary>Se dañó el computador, ¿cómo recupero todo?<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <p>Si guardaste la carpeta Documentos\Mis gastos\Respaldos (o un respaldo tuyo) en otro lado, instala la app en el computador nuevo, copia la carpeta en el mismo lugar y abre la app: te ofrecerá cargar el respaldo. También puedes abrirlo desde el menú ⋯ → Respaldos → Abrir respaldo.</p>
+        </details>
+        <details class="rv">
+          <summary>¿Hay versión para Mac o para el celular?<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <p>Por ahora solo para Windows.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <section class="final rv">
+      <img src="icono.svg" alt="" width="72" height="72">
+      <h2>Empieza este mes</h2>
+      <p>Descárgala, anota lo de hoy y mira cuánto te queda.</p>
+      <div class="ctas">
+        <a class="btn primary big" data-descarga href="https://github.com/S3b4sst14n/mis-gastos-descargas/releases/latest">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>Descargar para Windows
+        </a>
+        <span class="meta" data-version>Windows 10 y 11 · unos 3 MB</span>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Mis gastos · Las capturas usan datos de ejemplo.</span>
+    <a href="https://github.com/S3b4sst14n/mis-gastos-descargas/releases">Todas las versiones</a>
+  </div>
+</footer>
+
+<script>
+// The download buttons point straight at the newest installer, with its version and size. Without
+// an answer from GitHub they keep pointing at the page of the newest version.
+fetch("https://api.github.com/repos/S3b4sst14n/mis-gastos-descargas/releases/latest", { headers: { Accept: "application/vnd.github+json" } })
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(v => {
+    const exe = (v.assets || []).find(a => /\.exe$/i.test(a.name));
+    if (!exe) return;
+    const mb = (exe.size / 1048576).toLocaleString("es-CO", { maximumFractionDigits: 1 });
+    document.querySelectorAll("[data-descarga]").forEach(a => { a.href = exe.browser_download_url; });
+    document.querySelectorAll("[data-version]").forEach(s => { s.textContent = `Versión ${v.tag_name.replace(/^v/, "")} · ${mb} MB · Windows 10 y 11`; });
+  })
+  .catch(() => {});
+
+// The header gets a line under it once the page moves.
+const top_ = document.getElementById("top");
+const marcar = () => top_.classList.toggle("scrolled", scrollY > 8);
+addEventListener("scroll", marcar, { passive: true }); marcar();
+
+// Things appear as they come into view.
+const rv = document.querySelectorAll(".rv");
+if ("IntersectionObserver" in window) {
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -8% 0px" });
+  rv.forEach(el => io.observe(el));
+} else rv.forEach(el => el.classList.add("in"));
+</script>
+</body>
+</html>

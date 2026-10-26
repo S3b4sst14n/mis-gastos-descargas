@@ -101,7 +101,7 @@ La lupa busca en todos los meses por concepto, categoría o monto. Y si usas el 
 
 ## Tus datos
 
-- **Se quedan en tu computador.** No hay cuentas ni servidores: lo que anotas no se envía a ningún lado. La app solo usa internet para revisar si hay una versión nueva.
+- **Se quedan en tu computador.** No hay cuentas ni servidores: lo que anotas no se envía a ningún lado. La app solo usa internet para revisar si hay una versión nueva y, si tú lo pides, para enviar un reporte de error, que no lleva tus movimientos.
 - **Respaldo automático.** Cada día que usas la app se guarda una copia en `Documentos\Mis gastos\Respaldos`, y se guardan las de los últimos 30 días. Si reinstalas la app o la pasas a otro computador, al abrir vacía te ofrece cargar el respaldo más reciente.
 - **Pasarlos a otro computador.** En el menú **⋯ → Respaldos** puedes guardar un respaldo en un archivo y abrirlo en el otro computador.
 
